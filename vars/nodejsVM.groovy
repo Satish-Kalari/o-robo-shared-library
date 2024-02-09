@@ -65,7 +65,7 @@ def call(Map configMap){
                 steps {
                     sh """
                         ls -la
-                        zip -q -r ${configMap.component}.zip ./* -x ".git" -x "*.zip"
+                        zip -q -r catalogue.zip ./* -x ".git" -x "*.zip"
                         ls -ltr
                     """
                 }
@@ -78,12 +78,12 @@ def call(Map configMap){
                         nexusUrl: pipelineGlobals.nexusURL(),
                         groupId: 'com.roboshop',
                         version: "${packageVersion}",
-                        repository: "${configMap.component}",
+                        repository: "catalogue",
                         credentialsId: 'nexus-auth',
                         artifacts: [
-                            [artifactId:"${configMap.component}",
+                            [artifactId:"catalogue",
                             classifier: '',
-                            file: "${configMap.component}.zip",
+                            file: "catalogue.zip",
                             type: 'zip']
                         ]
                     )
@@ -101,7 +101,7 @@ def call(Map configMap){
                                 string(name: 'version', value: "$packageVersion"),
                                 string(name: 'environment', value: "dev")
                             ]
-                            build job: "${configMap.component}-deploy", wait: true, parameters: params
+                            build job: "catalogue-deploy", wait: true, parameters: params
                     }
                 }
             }
