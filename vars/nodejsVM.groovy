@@ -64,8 +64,7 @@ def call(Map configMap){
             stage('Build') {
                 steps {
                     sh """
-                        ls -la
-                        echo "${configMap.component}"
+                        ls -la                        
                         zip -q -r ${configMap.component}.zip ./* -x ".git" -x "*.zip"
                         ls -ltr
                     """
@@ -102,7 +101,7 @@ def call(Map configMap){
                                 string(name: 'version', value: "$packageVersion"),
                                 string(name: 'environment', value: "dev")
                             ]
-                            build job: "${configMap.component}-deploy", wait: true, parameters: params
+                            build job: "../${configMap.component}-deploy", wait: true, parameters: params
                     }
                 }
             }
