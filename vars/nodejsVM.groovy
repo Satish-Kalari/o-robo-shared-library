@@ -6,20 +6,22 @@ def call(Map configMap){
             }
         }
         environment { 
-            packageVersion = ''
-            // can maintain in pipeline globals
-            //nexusURL = '172.31.5.95:8081'
+            packageVersion = '' 
+            // nexusurl is maintained in pipelineGlobals 
+            // nexusURL = '172.31.6.198:8081'      
         }
         options {
+            ansiColor('xterm')
             timeout(time: 1, unit: 'HOURS')
             disableConcurrentBuilds()
         }
+    // Each parameter has a Name and Value, depending on the parameter type. This information is exported as environment variables when the build starts, allowing subsequent parts of the build configuration to access those values
         parameters {
-            // string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
+            // string(name: 'PERSON', defaultValue: 'Mrs Apeksha', description: 'Who should I say hello to?')
 
             // text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
 
-            booleanParam(name: 'Deploy', defaultValue: false, description: 'Toggle this value')
+            booleanParam(name: 'Deploy', defaultValue: false, description: 'Ready for deploy?')
 
             // choice(name: 'CHOICE', choices: ['One', 'Two', 'Three'], description: 'Pick something')
 
@@ -50,9 +52,10 @@ def call(Map configMap){
                     """
                 }
             }
-            stage('Sonar Scan'){
-                steps{
+            stage('Sonar Scan') {
+                steps {
                     sh """
+                        echo "to run scan need to use this coomand sonar-scanner"
                         echo "usually command here is sonar-scanner"
                         echo "sonar scan will run here"
                     """
@@ -78,7 +81,7 @@ def call(Map configMap){
                         repository: "${configMap.component}",
                         credentialsId: 'nexus-auth',
                         artifacts: [
-                            [artifactId: "${configMap.component}",
+                            [artifactId:"${configMap.component}",
                             classifier: '',
                             file: "${configMap.component}.zip",
                             type: 'zip']
@@ -88,8 +91,8 @@ def call(Map configMap){
             }
             stage('Deploy') {
                 when {
-                    expression{
-                        params.Deploy
+                    expression {
+                        params.Deploy == 'true'
                     }
                 }
                 steps {
@@ -98,8 +101,8 @@ def call(Map configMap){
                                 string(name: 'version', value: "$packageVersion"),
                                 string(name: 'environment', value: "dev")
                             ]
-                            build job: "../${configMap.component}-deploy", wait: true, parameters: params
-                        }
+                            build job: "${configMap.component}-deploy", wait: true, parameters: params
+                    }
                 }
             }
         }
@@ -107,6 +110,7 @@ def call(Map configMap){
         post { 
             always { 
                 echo 'I will always say Hello again!'
+                // remove workspace folder in pipleline 
                 deleteDir()
             }
             failure { 
