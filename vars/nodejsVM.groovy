@@ -111,7 +111,7 @@ def call(Map configMap){
             always { 
                 echo 'I will always say Hello again!'
                 // remove workspace folder in pipleline 
-                deleteDir()
+                // deleteDir()
             }
             failure { 
                 echo 'this runs when pipeline is failed, used generally to send some alerts'
